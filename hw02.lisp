@@ -251,10 +251,11 @@ EX: (check= (- 4/3 1) 1/3)
   
 (check= (how-many  1 ()) 0)
 (check= (how-many  1 '(1 1)) 2)
-(check= (how-many 1 '(1 2 3)) 1)#|ACL2s-ToDo-Line|#
-
+(check= (how-many 1 '(1 2 3)) 1)
 (check= (how-many 'a '(a a b c)) 2)
 (check= (how-many 3 '(4 5 6)) 0)
+(check= (how-many '(3 4) '(1 2 3 4)) 0)
+(check= (how-many '(1 2) '((1 2) (1 2) (3 4) 3)) 2)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -267,12 +268,19 @@ EX: (check= (- 4/3 1) 1/3)
 ; program.  The functions were given in this order for a reason.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc same-multiplicity (l l1 l2)
-;  :input-contract ....
-;  :output-contract ....
-;  ........
+  :input-contract (and (listp l) (listp l1) (listp l2))
+  :output-contract (booleanp (same-multiplicity l l1 l2))
+  (if (endp l)
+    t ; Base case returns t to not blow up the recursive AND
+    (and (same-multiplicity (rest l) l1 l2) ; recursively call with the rest
+         (equal (how-many (first l) l1) (how-many (first l) l2))))) ; use how-many as a helper for each element
   
 (check= (same-multiplicity '(1)   '(2 1 3) '(1 2 2)) t)
 (check= (same-multiplicity '(1 2) '(2 1 3) '(1 2 2)) nil)
+(check= (same-multiplicity '() '(1 2 3) '(4 5 6)) t)
+(check= (same-multiplicity '((1 2) (3 4)) '((1 2) (1 2) (3 4)) '((3 4) (1 2) (1 2))) t)#|ACL2s-ToDo-Line|#
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; flat-listp
