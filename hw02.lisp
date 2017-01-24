@@ -302,8 +302,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (flat-listp '(1 2 3)) t)
 (check= (flat-listp '()) t)
 (check= (flat-listp '(()())) nil)
-(check= (flat-listp 1) nil)#|ACL2s-ToDo-Line|#
-
+(check= (flat-listp 1) nil)
 
 #|
  Part II: List manipulation
@@ -322,10 +321,24 @@ EX: (check= (- 4/3 1) 1/3)
 ;; and l2....consider it zipping the lists together.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc merge-lists (l1 l2)
-;  ...........
+ :input-contract (and (listp l1) (listp l2))
+ :output-contract (listp (merge-lists l1 l2))
+ (if (endp l1)
+   l2
+   (cons (first l1) (merge-lists l2 (rest l1)))))
+   
   
 (check= (merge-lists '(a b c d) '(1 2 3 4 5))
         '(a 1 b 2 c 3 d 4 5))
+(check= (merge-lists '(a b c) '(1 2 3 4 5))
+        '(a 1 b 2 c 3 4 5))
+(check= (merge-lists '() '(1 2 3 4))
+        '(1 2 3 4))
+(check= (merge-lists '(1 2 3 4) '())
+        '(1 2 3 4))
+(check= (merge-lists '((1 2) (3 4)) '((5 6) (7 8)))
+        '((1 2) (5 6) (3 4) (7 8)))#|ACL2s-ToDo-Line|#
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; flatten-list
