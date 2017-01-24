@@ -337,8 +337,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (merge-lists '(1 2 3 4) '())
         '(1 2 3 4))
 (check= (merge-lists '((1 2) (3 4)) '((5 6) (7 8)))
-        '((1 2) (5 6) (3 4) (7 8)))#|ACL2s-ToDo-Line|#
-
+        '((1 2) (5 6) (3 4) (7 8)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; flatten-list
@@ -356,10 +355,17 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc flatten-list (l)
   :input-contract (listp l)
   :output-contract (flat-listp (flatten-list l))
-;  ......
-  
+  (if (endp l)
+    nil
+    (if (listp (first l))
+      (app (flatten-list (first l)) (flatten-list (rest l))) ; this is a list within a list
+      (app (list (first l)) (flatten-list (rest l)))))) ; i am a list, but my first element is not
+    
+(check= (flatten-list '(1 2 3 4)) '(1 2 3 4))
 (check= (flatten-list '((1 2 3) nil 4 (5 6))) '(1 2 3 4 5 6))
-; Add additional tests.
+(check= (flatten-list '(((1 2 3) (4 5 6)) nil 7 (8 9))) '(1 2 3 4 5 6 7 8 9))
+(check= (flatten-list '()) '())#|ACL2s-ToDo-Line|#
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wrap-elements: List -> List
