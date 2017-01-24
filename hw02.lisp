@@ -87,7 +87,7 @@ For example:
 Names of ALL group members: David Sprague, Peizun Liu
 
 There will be a 10 pt penalty if your names do not follow this format.
-Names of ALL group members: ...
+Names of ALL group members: Izaak Branch, Chris Kenyon
 
 * Later in the term if you want to change groups, the person who created
   the group should stay in the group. Other people can leave and create 
@@ -207,13 +207,28 @@ EX: (check= (- 4/3 1) 1/3)
  ;; only if exactly 1 of the variables is true. This is XOR applied
  ;; to three variables.
  (defunc TriXOR (x y z)
-   :input-contract ......
-   :output-contract ......
-   ...........
+   :input-contract (and (booleanp x) (booleanp y) (booleanp z))
+   :output-contract (booleanp (TriXOR x y z))
+   (if x
+     (if y ; X
+       nil ; X and Y
+       (if z ; not Y
+         nil ; X and Z
+         t)) ; only X
+     (if y
+       (if z ; Y
+         nil ; Y and Z
+         t) ; only Y
+       (if z ; not Y not X
+         t ; Z only
+         nil) ; none
+       )))
    
 (check= (TriXOR t t nil) nil)
 (check= (TriXOR nil t nil) t)
-;; Additional checks needed
+(check= (TriXOR nil nil nil) nil)
+(check= (TriXOR t t t) nil)#|ACL2s-ToDo-Line|#
+
  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
