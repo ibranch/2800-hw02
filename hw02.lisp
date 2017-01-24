@@ -364,8 +364,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (flatten-list '(1 2 3 4)) '(1 2 3 4))
 (check= (flatten-list '((1 2 3) nil 4 (5 6))) '(1 2 3 4 5 6))
 (check= (flatten-list '(((1 2 3) (4 5 6)) nil 7 (8 9))) '(1 2 3 4 5 6 7 8 9))
-(check= (flatten-list '()) '())#|ACL2s-ToDo-Line|#
-
+(check= (flatten-list '()) '())
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wrap-elements: List -> List
@@ -378,13 +377,16 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc wrap-elements (l)
   :input-contract (listp l)
   :output-contract (listp (wrap-elements l))
-;  ........
+  (if (endp l)
+    nil
+    (app (list (list (first l))) (wrap-elements (rest l)))))
   
 (check= (wrap-elements '(1 2 3)) '((1) (2) (3)))
 (check= (wrap-elements '(1 2 (3))) '((1) (2) ((3))))
-
-; Additional tests
-;......
+(check= (wrap-elements '()) '())
+(check= (wrap-elements '(1)) '((1)))
+(check= (wrap-elements '((1 2 3))) '(((1 2 3))))
+(check= (wrap-elements '((1 2) 3)) '(((1 2)) (3)))#|ACL2s-ToDo-Line|#
 
 
 #|
