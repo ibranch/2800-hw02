@@ -227,8 +227,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (TriXOR t t nil) nil)
 (check= (TriXOR nil t nil) t)
 (check= (TriXOR nil nil nil) nil)
-(check= (TriXOR t t t) nil)#|ACL2s-ToDo-Line|#
-
+(check= (TriXOR t t t) nil)
  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -239,13 +238,23 @@ EX: (check= (- 4/3 1) 1/3)
 ;; in list l.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc how-many (e l)
-  :input-contract ....
-  :output-contract ......
-  ......
+  :input-contract (listp l)
+  :output-contract (natp (how-many e l))
+  (if (endp l)
+    0 ; if empty list, return 0 and resolve the recursion
+    (if (equal (first l) e) ; list is not empty, compare first element and key
+      (+ 1 (how-many e (rest l))) ; if match, add 1 and recursively call with remainder
+      (+ 0 (how-many e (rest l))) ; if no match, add nothing and recursively call with remainder
+      )
+    )
+  )
   
-(check= (how-many  1 ())     0)
+(check= (how-many  1 ()) 0)
 (check= (how-many  1 '(1 1)) 2)
-;; Add additional tests
+(check= (how-many 1 '(1 2 3)) 1)#|ACL2s-ToDo-Line|#
+
+(check= (how-many 'a '(a a b c)) 2)
+(check= (how-many 3 '(4 5 6)) 0)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -258,9 +267,9 @@ EX: (check= (- 4/3 1) 1/3)
 ; program.  The functions were given in this order for a reason.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc same-multiplicity (l l1 l2)
-  :input-contract ....
-  :output-contract ....
-  ........
+;  :input-contract ....
+;  :output-contract ....
+;  ........
   
 (check= (same-multiplicity '(1)   '(2 1 3) '(1 2 2)) t)
 (check= (same-multiplicity '(1 2) '(2 1 3) '(1 2 2)) nil)
@@ -273,7 +282,7 @@ EX: (check= (- 4/3 1) 1/3)
 ;; l is a list AND each element in l is not a list. 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc flat-listp (l)
- .....
+; .....
  
 (check= (flat-listp '(1 2 (3))) nil)
 (check= (flat-listp '(1 2 3)) t)
@@ -296,7 +305,7 @@ EX: (check= (- 4/3 1) 1/3)
 ;; and l2....consider it zipping the lists together.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc merge-lists (l1 l2)
-  ...........
+;  ...........
   
 (check= (merge-lists '(a b c d) '(1 2 3 4 5))
         '(a 1 b 2 c 3 d 4 5))
@@ -317,7 +326,7 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc flatten-list (l)
   :input-contract (listp l)
   :output-contract (flat-listp (flatten-list l))
-  ......
+;  ......
   
 (check= (flatten-list '((1 2 3) nil 4 (5 6))) '(1 2 3 4 5 6))
 ; Add additional tests.
@@ -333,13 +342,13 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc wrap-elements (l)
   :input-contract (listp l)
   :output-contract (listp (wrap-elements l))
-  ........
+;  ........
   
 (check= (wrap-elements '(1 2 3)) '((1) (2) (3)))
 (check= (wrap-elements '(1 2 (3))) '((1) (2) ((3))))
 
 ; Additional tests
-......
+;......
 
 
 #|
@@ -360,7 +369,7 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc rem-similar (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (rem-similar x y))
-  .....
+;  .....
   
 (check= (rem-similar 8000000004 2000000000) 4)
 ;; The check below would be extremely slow using this method of calculating 
@@ -377,7 +386,7 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc rem-smally (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (rem-smally x y))
-  .......
+;  .......
   
 ;; The check below would be extremely slow using this method of calculating 
 ;; the remainder
@@ -413,7 +422,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (rem 123 48) 27)
 
 ; Additional Checks
-...........
+;...........
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -429,7 +438,7 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc nat/ (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (nat/ x y))
-  ......
+ ; ......
 
 (check= (nat/ 16 3) 5)
 (check= (nat/ 16 2) 8)
@@ -459,7 +468,7 @@ EX: (check= (- 4/3 1) 1/3)
 ;; positive and rounded UP if the result is negative.
 ;; HINT: Do not re-invent the wheel here. Use previous functions.
 (defunc int/ (x y)
-  .......
+ ; .......
   
   
 ;; Add additional tests after these
@@ -506,7 +515,7 @@ EX: (check= (- 4/3 1) 1/3)
 ;; and rounded down for values of Y <= 1/2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc round (r)
-  ........
+ ; ........
   
 (check= (round 4/3) 1)
 (check= (round -4/3) -1)
