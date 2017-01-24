@@ -278,8 +278,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (same-multiplicity '(1)   '(2 1 3) '(1 2 2)) t)
 (check= (same-multiplicity '(1 2) '(2 1 3) '(1 2 2)) nil)
 (check= (same-multiplicity '() '(1 2 3) '(4 5 6)) t)
-(check= (same-multiplicity '((1 2) (3 4)) '((1 2) (1 2) (3 4)) '((3 4) (1 2) (1 2))) t)#|ACL2s-ToDo-Line|#
-
+(check= (same-multiplicity '((1 2) (3 4)) '((1 2) (1 2) (3 4)) '((3 4) (1 2) (1 2))) t)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -290,11 +289,21 @@ EX: (check= (- 4/3 1) 1/3)
 ;; l is a list AND each element in l is not a list. 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defunc flat-listp (l)
-; .....
+  :input-contract t
+  :output-contract (booleanp (flat-listp l))
+  (if (listp l)
+    (if (endp l)
+      t ; end of the list, resolve
+      (and (not (listp (first l))) ; first element is not a list
+           (flat-listp (rest l)))) ; check the rest of the elements
+    nil)) ; original input is not a list
  
 (check= (flat-listp '(1 2 (3))) nil)
 (check= (flat-listp '(1 2 3)) t)
-;; Make sure you add additional tests
+(check= (flat-listp '()) t)
+(check= (flat-listp '(()())) nil)
+(check= (flat-listp 1) nil)#|ACL2s-ToDo-Line|#
+
 
 #|
  Part II: List manipulation
