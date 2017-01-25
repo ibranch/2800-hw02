@@ -1,61 +1,3 @@
-; **************** BEGIN INITIALIZATION FOR ACL2s B MODE ****************** ;
-; (Nothing to see here!  Your actual file is after this initialization code);
-
-#|
-Pete Manolios
-Fri Jan 27 09:39:00 EST 2012
-----------------------------
-
-Made changes for spring 2012.
-
-
-Pete Manolios
-Thu Jan 27 18:53:33 EST 2011
-----------------------------
-
-The Beginner level is the next level after Bare Bones level.
-
-|#
-
-; Put CCG book first in order, since it seems this results in faster loading of this mode.
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem loading the CCG book.~%Please choose \"Recertify ACL2s system books\" under the ACL2s menu and retry after successful recertification.") (value :invisible))
-(include-book "ccg/ccg" :uncertified-okp nil :dir :acl2s-modes :ttags ((:ccg)) :load-compiled-file nil);v4.0 change
-
-;Common base theory for all modes.
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem loading ACL2s base theory book.~%Please choose \"Recertify ACL2s system books\" under the ACL2s menu and retry after successful recertification.") (value :invisible))
-(include-book "base-theory" :dir :acl2s-modes)
-
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem loading ACL2s customizations book.~%Please choose \"Recertify ACL2s system books\" under the ACL2s menu and retry after successful recertification.") (value :invisible))
-(include-book "custom" :dir :acl2s-modes :uncertified-okp nil :ttags :all)
-
-;Settings common to all ACL2s modes
-(acl2s-common-settings)
-
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem loading trace-star and evalable-ld-printing books.~%Please choose \"Recertify ACL2s system books\" under the ACL2s menu and retry after successful recertification.") (value :invisible))
-(include-book "trace-star" :uncertified-okp nil :dir :acl2s-modes :ttags ((:acl2s-interaction)) :load-compiled-file nil)
-(include-book "hacking/evalable-ld-printing" :uncertified-okp nil :dir :system :ttags ((:evalable-ld-printing)) :load-compiled-file nil)
-
-;theory for beginner mode
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem loading ACL2s beginner theory book.~%Please choose \"Recertify ACL2s system books\" under the ACL2s menu and retry after successful recertification.") (value :invisible))
-(include-book "beginner-theory" :dir :acl2s-modes :ttags :all)
-
-
-#+acl2s-startup (er-progn (assign fmt-error-msg "Problem setting up ACL2s Beginner mode.") (value :invisible))
-;Settings specific to ACL2s Beginner mode.
-(acl2s-beginner-settings)
-
-; why why why why 
-(acl2::xdoc acl2s::defunc) ; almost 3 seconds
-
-(cw "~@0Beginner mode loaded.~%~@1"
-    #+acl2s-startup "${NoMoReSnIp}$~%" #-acl2s-startup ""
-    #+acl2s-startup "${SnIpMeHeRe}$~%" #-acl2s-startup "")
-
-
-(acl2::in-package "ACL2S B")
-
-; ***************** END INITIALIZATION FOR ACL2s B MODE ******************* ;
-;$ACL2s-SMode$;Beginner
 #|
 
 CS 2800 Homework 2 - Spring 2017
@@ -386,8 +328,7 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (wrap-elements '()) '())
 (check= (wrap-elements '(1)) '((1)))
 (check= (wrap-elements '((1 2 3))) '(((1 2 3))))
-(check= (wrap-elements '((1 2) 3)) '(((1 2)) (3)))#|ACL2s-ToDo-Line|#
-
+(check= (wrap-elements '((1 2) 3)) '(((1 2)) (3)))
 
 #|
  Part III: Discrete Math Fun
@@ -407,12 +348,40 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc rem-similar (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (rem-similar x y))
+  (if (< x y) x
+    (if (or (equal x y) (equal x (* y y)))
+      0
+      (rem-similar (- x y) y))))
 ;  .....
   
 (check= (rem-similar 8000000004 2000000000) 4)
+(check= (rem-similar 100 100) 0)
+(check= (rem-similar 100 10) 0)
+(check= (rem-similar 100 101) 100)
 ;; The check below would be extremely slow using this method of calculating 
 ;; the remainder
 ;; (check= (rem-similar 800000 2))
+
+(defunc exp (b p)
+  :input-contract (and (natp b)(posp p))
+  :output-contract (natp (exp b p))
+  (if (> p 1)
+    (* b (exp b (- p 1)))
+    b))
+(check= (exp 2 3) 8)
+(check= (exp 2 5) 32)
+(check= (exp 3 3) 27)
+  
+(defunc max-exp (x y p)
+  :input-contract (and (natp x)(posp y)(posp p))
+  :output-contract (natp (max-exp x y p))
+  (if (equal 1 y) 1
+    (if (<= (exp y (+ 1 p)) x)
+      (max-exp x y (+ 1 p))
+      p)))
+(check= (max-exp 10000 10 1) 4)
+(check= (max-exp 10001 10 1) 4)
+(check= (max-exp 9999 10 1) 3)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Define
@@ -424,6 +393,9 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc rem-smally (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (rem-smally x y))
+  (if (>= x y)
+    (rem-smally (- x (exp y (max-exp x y 1))) y)
+    (rem-similar x y)))
 ;  .......
   
 ;; The check below would be extremely slow using this method of calculating 
@@ -476,6 +448,8 @@ EX: (check= (- 4/3 1) 1/3)
 (defunc nat/ (x y)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (nat/ x y))
+  (/ (- x (rem x y)) y))
+    
  ; ......
 
 (check= (nat/ 16 3) 5)
