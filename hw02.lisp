@@ -410,7 +410,6 @@ EX: (check= (- 4/3 1) 1/3)
     (if (or (equal x y) (equal x (* y y)))
       0
       (rem-similar (- x y) y))))
-;  .....
   
 (check= (rem-similar 8000000004 2000000000) 4)
 (check= (rem-similar 100 100) 0)
@@ -437,6 +436,7 @@ EX: (check= (- 4/3 1) 1/3)
     (if (<= (exp y (+ 1 p)) x)
       (max-exp x y (+ 1 p))
       p)))
+
 (check= (max-exp 10000 10 1) 4)
 (check= (max-exp 10001 10 1) 4)
 (check= (max-exp 9999 10 1) 3)
@@ -454,7 +454,7 @@ EX: (check= (- 4/3 1) 1/3)
   (if (>= x y)
     (rem-smally (- x (exp y (max-exp x y 1))) y)
     (rem-similar x y)))
-;  .......
+
   
 ;; The check below would be extremely slow using this method of calculating 
 ;; the remainder
@@ -489,9 +489,6 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (rem 1234567 10) 7)
 (check= (rem 123 48) 27)
 
-; Additional Checks
-;...........
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; nat/: Nat x Nat-{0} -> Nat
@@ -507,13 +504,13 @@ EX: (check= (- 4/3 1) 1/3)
   :input-contract (and (natp x)(posp y))
   :output-contract (natp (nat/ x y))
   (/ (- x (rem x y)) y))
-    
- ; ......
+
 
 (check= (nat/ 16 3) 5)
 (check= (nat/ 16 2) 8)
-
-;; Additional tests
+(check= (nat/ 15 2) 7)
+(check= (nat/ 20 2) 10)
+(check= (nat/ 0 1) 0)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GIVEN
@@ -529,6 +526,9 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (abs -3/2) 3/2)
 (check= (abs 3/2) 3/2)
 (check= (abs -3456778/2) 3456778/2)
+(check= (abs 0) 0)
+(check= (abs -1) 1)
+(check= (abs 1) 1)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -548,16 +548,14 @@ EX: (check= (- 4/3 1) 1/3)
           (unary-- posdiv)
           posdiv
         )))
- ; .......
   
-  
-;; Add additional tests after these
 (check= (int/ -5 -4) 1)
 (check= (int/ 5 -4) -1)
 (check= (int/ 5 -4) -1)
 (check= (int/ 5 4) 1)
-
-; Additional Checks
+(check= (int/ 0 1) 0)
+(check= (int/ 1 -1) -1)
+(check= (int/ 1 1) 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GIVEN
@@ -571,9 +569,9 @@ EX: (check= (- 4/3 1) 1/3)
   :output-contract (integerp (floor r))
   (let* ((absnum (abs (numerator r)))
          (posfloor (nat/ absnum (denominator r))))
-    (cond ((integerp r)   r)
-          ((< (numerator r) 0)         (- (unary-- posfloor) 1))
-          (t                           posfloor))))
+    (cond ((integerp r) r)
+          ((< (numerator r) 0) (- (unary-- posfloor) 1))
+          (t posfloor))))
 
 
 (check= (floor 4/3) 1)
@@ -583,6 +581,8 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (floor -4/3) -2)
 (check= (floor 0) 0)
 (check= (floor 24/5) 4)
+; These checks are pretty comprehensive - zero, negative fraction, positive fraction, negative int, positive int
+; I don't see any space to really write any more
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -603,11 +603,10 @@ EX: (check= (- 4/3 1) 1/3)
          (remhalf (/ (rem absnum absden) absden))
          (rounded (if (> remhalf 1/2) (+ posfloor 1) posfloor)))
     
-         (cond ((integerp r)            r)
-           ((< (numerator r) 0)         (unary-- rounded))
-           (t                           rounded))))
+         (cond ((integerp r) r)
+           ((< (numerator r) 0) (unary-- rounded))
+           (t rounded))))
 
- ; ........
   
 (check= (round 4/3) 1)
 (check= (round -4/3) -1)
@@ -615,3 +614,5 @@ EX: (check= (- 4/3 1) 1/3)
 (check= (round -5/3) -2)
 (check= (round 0) 0)
 (check= (round 10) 10)#|ACL2s-ToDo-Line|#
+
+; As above, these checks appear to be comprehensive, not space to write more.
